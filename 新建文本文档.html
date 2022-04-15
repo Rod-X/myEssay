@@ -7,9 +7,7 @@
     <title>Document</title>
   </head>
   <body>
-    <div>
-      创建一个html文件，方便直接打开页面测试随笔代码
-    </div>
+    <div>创建一个html文件，方便直接打开页面测试随笔代码</div>
     <script
       type="text/javascript"
       src="https://cdn.jsdelivr.net/g/lodash@4(lodash.min.js+lodash.fp.min.js)"
@@ -17,6 +15,12 @@
     <script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
     <script>
       //
+      const patten = /\w*$/;
+      const reg = new RegExp("a", "imgsy");
+      console.log(reg);
+      console.log(patten.exec(reg));
+      const regClone = new RegExp(reg, patten.exec(reg)); //克隆正则
+      console.log(regClone);
     </script>
   </body>
 </html>
