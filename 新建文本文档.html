@@ -1,26 +1,59 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
-  </head>
-  <body>
-    <div>创建一个html文件，方便直接打开页面测试随笔代码</div>
-    <script
-      type="text/javascript"
-      src="https://cdn.jsdelivr.net/g/lodash@4(lodash.min.js+lodash.fp.min.js)"
-    ></script>
-    <script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
-    <script>
-      //
-      const patten = /\w*$/;
-      const reg = new RegExp("a", "imgsy");
-      console.log(reg);
-      console.log(patten.exec(reg));
-      const regClone = new RegExp(reg, patten.exec(reg)); //克隆正则
-      console.log(regClone);
-    </script>
-  </body>
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Document</title>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/g/lodash@4(lodash.min.js+lodash.fp.min.js)"></script>
+  <script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
+  <script>
+    window.onload = function () {
+      let throttle = function (fn, interval = 500) {
+        let selt = fn // 存储函数
+        let isFirst = true //是否为第一次触发
+        let timer = null
+        return function (...args) {
+          let context = this
+          if (isFirst) {
+            fn.apply(context, args)
+            isFirst = false
+            return
+          }
+          if (timer) {
+            return
+          } else {
+            timer = setTimeout(() => {
+              fn.apply(context, args)
+              clearTimeout(timer)
+              timer = null
+            }, interval);
+          }
+        }
+      }
+      function onsizeFn() {
+        console.log(this, 'onsizeFn');
+
+      }
+      function ThrottleOnsizeFn() {
+        console.log(this, 'ThrottleOnsizeFn');
+      }
+      let mydiv = document.getElementById('mydiv')
+      for (let index = 0; index < 100; index++) {
+        let div = document.createElement('div')
+        div.innerHTML = `这是第${index}个div`
+        mydiv.appendChild(div)
+      }
+      window.addEventListener('resize', onsizeFn)
+      window.addEventListener('resize', throttle(ThrottleOnsizeFn))
+    }
+  </script>
+</head>
+
+<body>
+  <div id="mydiv">创建一个html文件，方便直接打开页面测试随笔代码</div>
+
+</body>
+
 </html>
