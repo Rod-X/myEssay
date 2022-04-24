@@ -11,29 +11,67 @@
     ></script>
     <script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
     <script>
-      // 惰性单例
-      var getSingle = function (classFn) {
-        var result;
-        return function () {
-          return result || (result = classFn.apply(this, arguments));
-        };
+      // 一个按评级，发放不同奖金的业务
+      var calculateBonus = function (performanceLevel, salary) {
+        if (performanceLevel === "A") {
+          return salary * 4;
+        }
+        if (performanceLevel === "B") {
+          return salary * 3;
+        }
+        if (performanceLevel === "C") {
+          return salary * 2;
+        }
+        if (performanceLevel === "D") {
+          return salary * 1;
+        }
       };
-      // 业务函数
-      function animal(name) {
-        this.name = name;
+      // 以后有更多的A+,A-这些级别的业务需求时。我们需要不断的修改这个calculateBonus函数。这将违背了我们的放封闭原则
+
+      // 使用策略模式-1，封装策略类
+      class performanceA {
+        calculate(salary) {
+          return salary * 4;
+        }
       }
-      function robot(name) {
-        this.name = name;
+      class performanceB {
+        calculate(salary) {
+          return salary * 3;
+        }
       }
-      // 创建单例函数
-      var singletonAnimal = getSingle(animal);
-      var singletonRobot = getSingle(robot);
-      var a1 = new singletonAnimal("牛");
-      var b1 = new singletonAnimal("牛");
-      var a2 = new singletonAnimal("机器牛");
-      var b2 = new singletonAnimal("机器牛");
-      console.log(a1, a1 === b1);
-      console.log(a2, a2 === b2);
+      class performanceC {
+        calculate(salary) {
+          return salary * 2;
+        }
+      }
+      class performanceD {
+        calculate(salary) {
+          return salary * 1;
+        }
+      }
+
+      // 定义奖金类Bonus
+      class Bonus {
+        constructor() {
+          this.salary = null;
+          this.strategy = null;
+        }
+        setSalary(salary) {
+          this.salary = salary;
+        }
+        setStrategy(strategy) {
+          this.strategy = strategy;
+        }
+        getBonus() {
+          return this.strategy.calculate(this.salary);
+        }
+      }
+
+      // 使用
+      var bonus = new Bonus();
+      bonus.setStrategy(new performanceA());
+      bonus.setSalary(4000);
+      console.log(bonus.getBonus());
     </script>
   </head>
 
