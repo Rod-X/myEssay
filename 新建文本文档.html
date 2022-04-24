@@ -11,67 +11,24 @@
     ></script>
     <script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
     <script>
-      // 一个按评级，发放不同奖金的业务
-      var calculateBonus = function (performanceLevel, salary) {
-        if (performanceLevel === "A") {
+      var strategies = {
+        A: function (salary) {
           return salary * 4;
-        }
-        if (performanceLevel === "B") {
+        },
+        B: function (salary) {
           return salary * 3;
-        }
-        if (performanceLevel === "C") {
+        },
+        C: function (salary) {
           return salary * 2;
-        }
-        if (performanceLevel === "D") {
+        },
+        D: function (salary) {
           return salary * 1;
-        }
+        },
       };
-      // 以后有更多的A+,A-这些级别的业务需求时。我们需要不断的修改这个calculateBonus函数。这将违背了我们的放封闭原则
-
-      // 使用策略模式-1，封装策略类
-      class performanceA {
-        calculate(salary) {
-          return salary * 4;
-        }
+      function calculateBonus(performanceLevel, salary) {
+        return strategies[performanceLevel](salary);
       }
-      class performanceB {
-        calculate(salary) {
-          return salary * 3;
-        }
-      }
-      class performanceC {
-        calculate(salary) {
-          return salary * 2;
-        }
-      }
-      class performanceD {
-        calculate(salary) {
-          return salary * 1;
-        }
-      }
-
-      // 定义奖金类Bonus
-      class Bonus {
-        constructor() {
-          this.salary = null;
-          this.strategy = null;
-        }
-        setSalary(salary) {
-          this.salary = salary;
-        }
-        setStrategy(strategy) {
-          this.strategy = strategy;
-        }
-        getBonus() {
-          return this.strategy.calculate(this.salary);
-        }
-      }
-
-      // 使用
-      var bonus = new Bonus();
-      bonus.setStrategy(new performanceA());
-      bonus.setSalary(4000);
-      console.log(bonus.getBonus());
+      console.log(calculateBonus("A",200));
     </script>
   </head>
 
