@@ -1,36 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-  <meta charset="UTF-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Document</title>
-  <script type="text/javascript" src="https://cdn.jsdelivr.net/g/lodash@4(lodash.min.js+lodash.fp.min.js)"></script>
-  <script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
-  <script>
-    var creatDiv = (
-      function () {
-        var instant ;
-        var creatDiv = function (html) {
-          if (instant) {
-            return instant
-          }
-          this.html = html
-          return instant = this
-        }
-        return creatDiv
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <script
+      type="text/javascript"
+      src="https://cdn.jsdelivr.net/g/lodash@4(lodash.min.js+lodash.fp.min.js)"
+    ></script>
+    <script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
+    <script>
+      // 单例代理器
+      var proxySingleton = function (classFn) {
+        return (function (classFn) {
+          var instance;
+          return function () {
+            if (!instance) {
+              instance = new classFn(...arguments);
+            }
+            return instance;
+          };
+        })(classFn);
+      };
+      // 业务函数
+      function animal(name) {
+        this.name = name;
       }
-    )()
-    var a = new creatDiv('span1')
-    var b = new creatDiv('span2')
-    console.log(a===b);
-  </script>
-</head>
+      // 创建单例函数
+      var singletonAnimal = proxySingleton(animal);
+      var a = new singletonAnimal('牛')
+      var b = new singletonAnimal('牛')
+      console.log(a,a===b);
+    </script>
+  </head>
 
-<body>
-  <div id="mydiv">创建一个html文件，方便直接打开页面测试随笔代码</div>
-
-</body>
-
+  <body>
+    <div id="mydiv">创建一个html文件，方便直接打开页面测试随笔代码</div>
+  </body>
 </html>
