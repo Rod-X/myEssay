@@ -11,24 +11,34 @@
     ></script>
     <script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
     <script>
-      var strategies = {
-        A: function (salary) {
-          return salary * 4;
-        },
-        B: function (salary) {
-          return salary * 3;
-        },
-        C: function (salary) {
-          return salary * 2;
-        },
-        D: function (salary) {
-          return salary * 1;
-        },
+      window.onload = function () {
+        // 创建一个真实的img
+        var myImage = (function () {
+          var imgNode = document.createElement("img");
+          document.body.appendChild(imgNode);
+          return {
+            setSrc: function (src) {
+              imgNode.src = src;
+            },
+          };
+        })();
+        // 使用虚拟代理
+        var proxyImage= (function () {
+          var img =  document.createElement("img");
+          var src ;
+          img.onload = function(){
+            // 虚拟对象先假装src图片。在加载完成后，修改正真图片元素的src，由于网络缓存，不需要重复的网络开销
+            myImage.src =  this.src
+          }
+          return {
+            setSrc:function(src){
+              myImage.src('这是一张loading图片！.png')
+              img.src = src
+            }
+          }
+        })()
+        proxyImage.setSrc('我要展示这个图片.png')
       };
-      function calculateBonus(performanceLevel, salary) {
-        return strategies[performanceLevel](salary);
-      }
-      console.log(calculateBonus("A",200));
     </script>
   </head>
 
