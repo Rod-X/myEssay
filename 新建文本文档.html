@@ -11,34 +11,29 @@
     ></script>
     <script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
     <script>
-      window.onload = function () {
-        // 创建一个真实的img
-        var myImage = (function () {
-          var imgNode = document.createElement("img");
-          document.body.appendChild(imgNode);
-          return {
-            setSrc: function (src) {
-              imgNode.src = src;
-            },
-          };
-        })();
-        // 使用虚拟代理
-        var proxyImage= (function () {
-          var img =  document.createElement("img");
-          var src ;
-          img.onload = function(){
-            // 虚拟对象先假装src图片。在加载完成后，修改正真图片元素的src，由于网络缓存，不需要重复的网络开销
-            myImage.src =  this.src
+      // 乘积函数
+      function mult() {
+        console.log("开始乘积运算");
+        var a = 1;
+        for (let index = 0; index < arguments.length; index++) {
+          const element = arguments[index];
+          a = a * element;
+        }
+        return a;
+      }
+      // 使用闭包对乘积函数进行缓存代理
+      var proxyMult = (function () {
+        var cache = {};
+        return function () {
+          var args = Array.prototype.join.apply(arguments);
+          if (args in cache) {
+            return cache[args];
           }
-          return {
-            setSrc:function(src){
-              myImage.src('这是一张loading图片！.png')
-              img.src = src
-            }
-          }
-        })()
-        proxyImage.setSrc('我要展示这个图片.png')
-      };
+          return (cache[args] = mult.apply(this, arguments));
+        };
+      })();
+      console.log(proxyMult(1,2,3,4,5));
+      console.log(proxyMult(1,2,3,4,5));
     </script>
   </head>
 
