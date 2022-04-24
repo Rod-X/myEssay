@@ -11,25 +11,29 @@
     ></script>
     <script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
     <script>
-      // 单例代理器
-      var proxySingleton = function (classFn) {
-        var instance;
+      // 惰性单例
+      var getSingle = function (classFn) {
+        var result;
         return function () {
-          if (!instance) {
-            instance = new classFn(...arguments);
-          }
-          return instance;
+          return result || (result = classFn.apply(this, arguments));
         };
       };
       // 业务函数
       function animal(name) {
         this.name = name;
       }
+      function robot(name) {
+        this.name = name;
+      }
       // 创建单例函数
-      var singletonAnimal = proxySingleton(animal);
-      var a = new singletonAnimal("牛");
-      var b = new singletonAnimal("牛");
-      console.log(a, a === b);
+      var singletonAnimal = getSingle(animal);
+      var singletonRobot = getSingle(robot);
+      var a1 = new singletonAnimal("牛");
+      var b1 = new singletonAnimal("牛");
+      var a2 = new singletonAnimal("机器牛");
+      var b2 = new singletonAnimal("机器牛");
+      console.log(a1, a1 === b1);
+      console.log(a2, a2 === b2);
     </script>
   </head>
 
