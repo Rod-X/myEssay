@@ -9,45 +9,22 @@
   <script type="text/javascript" src="https://cdn.jsdelivr.net/g/lodash@4(lodash.min.js+lodash.fp.min.js)"></script>
   <script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
   <script>
-    window.onload = function () {
-      let throttle = function (fn, interval = 500) {
-        let selt = fn // 存储函数
-        let isFirst = true //是否为第一次触发
-        let timer = null
-        return function (...args) {
-          let context = this
-          if (isFirst) {
-            fn.apply(context, args)
-            isFirst = false
-            return
+    var creatDiv = (
+      function () {
+        var instant ;
+        var creatDiv = function (html) {
+          if (instant) {
+            return instant
           }
-          if (timer) {
-            return
-          } else {
-            timer = setTimeout(() => {
-              fn.apply(context, args)
-              clearTimeout(timer)
-              timer = null
-            }, interval);
-          }
+          this.html = html
+          return instant = this
         }
+        return creatDiv
       }
-      function onsizeFn() {
-        console.log(this, 'onsizeFn');
-
-      }
-      function ThrottleOnsizeFn() {
-        console.log(this, 'ThrottleOnsizeFn');
-      }
-      let mydiv = document.getElementById('mydiv')
-      for (let index = 0; index < 100; index++) {
-        let div = document.createElement('div')
-        div.innerHTML = `这是第${index}个div`
-        mydiv.appendChild(div)
-      }
-      window.addEventListener('resize', onsizeFn)
-      window.addEventListener('resize', throttle(ThrottleOnsizeFn))
-    }
+    )()
+    var a = new creatDiv('span1')
+    var b = new creatDiv('span2')
+    console.log(a===b);
   </script>
 </head>
 
