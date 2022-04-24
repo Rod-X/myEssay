@@ -13,15 +13,13 @@
     <script>
       // 单例代理器
       var proxySingleton = function (classFn) {
-        return (function (classFn) {
-          var instance;
-          return function () {
-            if (!instance) {
-              instance = new classFn(...arguments);
-            }
-            return instance;
-          };
-        })(classFn);
+        var instance;
+        return function () {
+          if (!instance) {
+            instance = new classFn(...arguments);
+          }
+          return instance;
+        };
       };
       // 业务函数
       function animal(name) {
@@ -29,9 +27,9 @@
       }
       // 创建单例函数
       var singletonAnimal = proxySingleton(animal);
-      var a = new singletonAnimal('牛')
-      var b = new singletonAnimal('牛')
-      console.log(a,a===b);
+      var a = new singletonAnimal("牛");
+      var b = new singletonAnimal("牛");
+      console.log(a, a === b);
     </script>
   </head>
 
