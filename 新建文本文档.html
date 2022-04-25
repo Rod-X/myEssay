@@ -11,29 +11,25 @@
     ></script>
     <script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
     <script>
-      // 乘积函数
-      function mult() {
-        console.log("开始乘积运算");
-        var a = 1;
-        for (let index = 0; index < arguments.length; index++) {
-          const element = arguments[index];
-          a = a * element;
-        }
-        return a;
-      }
-      // 使用闭包对乘积函数进行缓存代理
-      var proxyMult = (function () {
-        var cache = {};
-        return function () {
-          var args = Array.prototype.join.apply(arguments);
-          if (args in cache) {
-            return cache[args];
-          }
-          return (cache[args] = mult.apply(this, arguments));
-        };
+      var EventModel = (function () {
+        //...
       })();
-      console.log(proxyMult(1,2,3,4,5));
-      console.log(proxyMult(1,2,3,4,5));
+
+      // 发布-订阅者模式除了普通的订阅发布,
+      // 还能实现--先发布-后订阅
+      EventModel.trigger("click", 1);
+      EventModel.listen("click", function (val) {
+        console.log(val); // 此处输出：1
+      });
+      // 使用命名空间-区分不同类型模块
+      EventModel.create("namespace1").listen("click", function (val) {
+        console.log(val); // 输出：1
+      });
+      EventModel.create("namespace1").trigger("click", 1);
+      EventModel.create("namespace2").listen("click", function (val) {
+        console.log(val); // 输出：2
+      });
+      EventModel.create("namespace2").trigger("click", 2);
     </script>
   </head>
 
