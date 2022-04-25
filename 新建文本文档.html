@@ -11,169 +11,56 @@
     ></script>
     <script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
     <script>
-      var EventModel = (function () {
-        var global = this,
-          Event,
-          _default = "default",
-          Event = (function () {
-            var _listen,// _下划线加英文命名私有变量
-              _trigger,
-              _remove,
-              _slice = Array.prototype.slice,// 提取数组的slice方法
-              _shift = Array.prototype.shift,// 
-              _unshift = Array.prototype.unshift,
-              namespaceCache = {},// 存储 命名空间
-              _create,
-              each = function (arr, fn) {// cache['click'],
-                var ret;// 按规定方式遍历 函数数组
-                for (let index = 0; index < arr.length; index++) {
-                  const n = arr[index];
-                  ret = fn.call(n, index, n);
-                }
-                return ret;
-              };
-            // 添加订阅者事件
-            _listen = function (key, fn, cache) {
-              if (!cache[key]) {
-                cache[key] = [];
-              }
-              // 往存储栈中存放订阅事件
-              cache[key].push(fn);
-            };
-
-            // 移除订阅者事件
-            _remove = function (key, cache, fn) {
-              if (cache[key]) {
-                if (fn) {
-                  // 不传入函数则清除整个对应发布者的所有订阅者事件
-                  for (let index = 0; index < cache[key].length; index++) {
-                    const curFn = cache[key][index];
-                    if (curFn === fn) {
-                      cache[key].splice(index, 1);
-                      break;
-                    }
-                  }
-                } else {
-                  cache[key] = [];
-                }
-              }
-            };
-
-            _trigger = function () {
-              var cache = _shift.call(arguments),
-                key = _shift.call(arguments),// ['click',1].shift()=> click
-                args = arguments,
-                _self = this,
-                ret,
-                stack = cache[key];// 当前发布者 cache['click']
-              if (!stack || !stack.length) {
-                // 不存在发布者
-                return;
-              }
-              // 存在则触发所有订阅者事件
-              return each(stack, function () {
-                //each事件--遍历执行所有的订阅者事件
-                return this.apply(_self, args);
-              });
-            };
-
-            _create = function (namespace) {
-              var namespace = namespace || _default;
-              //所有不存在命名的发布者，都存储再默认发布者中
-              var cache = {},
-                offlineStack = [],// 存储先触发，后订阅，这种离线状态事件
-                ret = {
-                  listen: function (key, fn, last) {
-                    _listen(key, fn, cache);// 触发订阅者事件
-                    if (offlineStack === null) {
-                      // 不存在离线事件
-                      return;
-                    }
-                    if (last === "last") {
-                      // 只进行最新一次的离线事件
-                      offlineStack.length && offlineStack.pop()();
-                    } else {
-                      // 遍历所有的离线事件
-                      each(offlineStack, function () {
-                        this();
-                      });
-                    }
-                    offlineStack = null;// 凡事出现订阅者之后，不在使用离线存储，说明订阅者已经上线。离线触发没有意义
-                  },
-                  one: function (key, fn, last) {
-                    // 只执行这一个监听事件
-                    _remove(key, cache);
-                    this.listen(key, fn, last);
-                  },
-                  remove: function (key, fn) {
-                    //一次监听事件
-                    _remove(key, cache, fn);
-                  },
-                  trigger: function () {
-                    var fn,
-                      args,
-                      _self = this;
-                    _unshift.call(arguments, cache);
-                    args = arguments;
-                    fn = function () {
-                      return _trigger.apply(_self, args);
-                    };
-                    if (offlineStack) {
-                      // 存在离线存储空间。监听者未上线。事件先存在离线空间，一旦上线（产生了订阅），再执行
-                      return offlineStack.push(fn);
-                    }
-                    return fn();
-                  },
-                };
-              return namespace
-                ? namespaceCache[namespace]
-                  ? namespaceCache[namespace]
-                  : (namespaceCache[namespace] = ret)
-                : ret;
-            };
-
-            return {
-              create: _create,
-              one: function (key, fn, last) {
-                var event = this.create();
-                event.one(key, fn, last);
-              },
-              remove: function (key, fn) {
-                var event = this.create();
-                event.remove(key, fn);
-              },
-              listen: function (key, fn, last) {
-                var event = this.create();
-                event.listen(key, fn, last);
-              },
-              trigger: function () {
-                var event = this.create();
-                event.trigger.apply(this, arguments);
-              },
-            };
-          })();
-        return Event;
-      })();
-
-      // 发布-订阅者模式除了普通的订阅发布,
-      // 还能实现--先发布-后订阅
-      EventModel.trigger("click", 1);
-      EventModel.listen("click", function (val) {
-        console.log(val); // 此处输出：1
-      });
-      // 使用命名空间-区分不同类型模块
-      EventModel.create("namespace1").listen("click", function (val) {
-        console.log(val); // 输出：1
-      });
-      EventModel.create("namespace1").trigger("click", 1);
-      EventModel.create("namespace2").listen("click", function (val) {
-        console.log(val); // 输出：2
-      });
-      EventModel.create("namespace2").trigger("click", 2);
+      window.onload = function () {
+        var Ryu = {
+          attack: function () {
+            console.log("攻击");
+          },
+          defence: function () {
+            console.log("防御");
+          },
+          jump: function () {
+            console.log("跳跃");
+          },
+          crouch: function () {
+            console.log("蹲下");
+          },
+        };
+        //创建命令
+        var makeCommand = function (receiver, state) {
+          return function () {
+            receiver[state]();
+          };
+        };
+        // 键盘按钮事件
+        var commands = {
+          119: "jump", //W
+          115: "crouch", //S
+          97: "defence", //A
+          100: "attack", //D
+        };
+        var commandStack = []; // 存储键盘按钮事件命令的队列栈
+        document.onkeypress = function (ev) {
+          var keyCode = ev.keyCode;
+          command = makeCommand(Ryu, commands[keyCode]);
+          if (command) {
+            command(); // 执行命令
+            commandStack.push(command); // 将执行过的任务放进队列中
+          }
+        };
+        document.getElementById("replay").onclick = function () {
+          // 点击播放录像
+          var command;
+          while ((command = commandStack.shift())) {
+            command();
+          }
+        };
+      };
     </script>
   </head>
 
   <body>
     <div id="mydiv">创建一个html文件，方便直接打开页面测试随笔代码</div>
+    <button id="replay">录像播放</button>
   </body>
 </html>
