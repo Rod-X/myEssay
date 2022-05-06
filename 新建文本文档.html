@@ -11,16 +11,92 @@
     ></script>
     <script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
     <script>
-var obj = {
-    '2': 3,
-    '3': 4,
-    'length': 2,
-    'splice': Array.prototype.splice,
-    'push': Array.prototype.push
-}
-obj.push(1)
-obj.push(2)
-console.log(obj)
+      function recastFileName(path, fileName) {
+        fs.readFile(path, function (err, data) {
+          // 读取文件失败/错误
+          if (err) {
+            throw err;
+          }
+          const code = data.toString();
+          console.log(code);
+          const ast = recast.parse(code);
+          let i = 0;
+          // 要做的事情很简单，把所有 var 定义的 并且值是 Literal 整合起来
+          const maps = {};
+          // 各个字段的备注存在这
+          const markMap = {};
+          let markDown = "";
+          recast.visit(ast, {
+            visitExportNamedDeclaration: function (path) {
+              const init = path.node.declaration.declarations[0].init;
+              const key = path.node.declaration.declarations[0].id.name;
+              let value = init.value;
+              const type = init.type;
+              if (type === "UnaryExpression") {
+                value = eval(`${init.operator}${init.argument.value}`);
+              }
+              if (type === "Literal" || type === "UnaryExpression") {
+                maps[key] = value;
+
+                path.node.comments &&
+                  path.node.comments.map((item) => {
+                    markDown = `/**
+                                * Enum for ${fileName}
+                                * ${item.value}
+                                * @enum {number}
+                                */\n`;
+                  });
+                return null;
+              }
+              return false;
+            },
+            visitVariableDeclaration: function (path) {
+              if (
+                !path.value.declarations ||
+                !path.value.declarations[0] ||
+                !path.value.declarations[0].init.elements
+              ) {
+                return false;
+              }
+              console.log("定义");
+              console.log(path.value.declarations[0].init.elements);
+              path.value.declarations[0].init.elements.map((element) => {
+                const key = element.properties[0].value.name;
+                const value = element.properties[1].value.value;
+                element.properties[0].value = memberExpression(
+                  id(`${fileName}Obj`),
+                  id(key)
+                );
+                markMap[key] = value;
+              });
+              return false;
+            },
+          });
+          if (!Object.keys(maps).length) {
+            console.log("无需转换");
+            return;
+          }
+          let mapString = "{\n";
+          Object.keys(maps).map((key, index) => {
+            if (markMap[key]) mapString += `  /** ${markMap[key]} */\n`;
+            if (index === Object.keys(maps).length - 1) {
+              mapString += `  "${key}": ${maps[key]}\n`;
+            } else {
+              mapString += `  "${key}": ${maps[key]},\n`;
+            }
+          });
+          mapString += "}";
+          const res = `const ${fileName}Obj = ${mapString}\nexport const ${fileName}Enum = Object.freeze(${fileName}Obj)\n`;
+
+          const output = res + recast.print(ast).code;
+          const finel = recast.print(recast.parse(output)).code;
+          console.log(finel);
+          console.log(output);
+          fs.writeFile(path, `${markDown}\n${finel}`, {}, function () {
+            console.log(`wirte ${fileName} OK!`);
+          });
+        });
+      }
     </script>
   </head>
 

@@ -700,4 +700,220 @@ var b = 10;
 })();
 ```
 
+#### 简单改造下面的代码，使之分别打印 10 和 20。
+
+```javascript
+     var b = 10;
+(function b(){
+    b = 20;
+    console.log(b); 
+})();
+
+var b = 10;
+      (function b() {
+        var b = 20; //or let b = 20;
+        console.log(this);//自执行函数this指向window
+        console.log(this.b);
+        console.log(b);
+      })();
+```
+
+#### 输出以下代码执行的结果并解释为什么
+
+```javascript
+var obj = {
+    '2': 3,
+    '3': 4,
+    'length': 2,
+    'splice': Array.prototype.splice,
+    'push': Array.prototype.push
+}
+obj.push(1)
+obj.push(2)
+console.log(obj)
+
+//2: 1 //push 是按length  类似arr[length]赋值
+//3: 2 //
+//length: 4  // 每次push都会增加length
+//push: ƒ push()
+//splice: ƒ splice() // splice方法也是
+Array.from()、splice()、concat()等 题分析： 这个obj中定义了两个key值，分别为splice和push分别对应数组原型中的splice和push方法，因此这个obj可以调用数组中的push和splice方法，调用对象的push方法：push(1)，因为此时obj中定义length为2，所以从数组中的第二项开始插入，也就是数组的第三项（下表为2的那一项），因为数组是从第0项开始的，这时已经定义了下标为2和3这两项，所以它会替换第三项也就是下标为2的值，第一次执行push完，此时key为2的属性值为1，同理：第二次执行push方法，key为3的属性值为2。此时的输出结果就是： Object(4) [empty × 2, 1, 2, splice: ƒ, push: ƒ]----> [ 2: 1, 3: 2, length: 4, push: ƒ push(), splice: ƒ splice() ]
+
+```
+
+
+
+```javascript
+var a = {n: 1};
+var b = a;
+a.x = a = {n: 2}; // 先走 a.x = {n:2} 再走 a = {n:2}覆盖原有对象
+
+console.log(a.x) // undefind
+console.log(b.x) // {n:2}
+. 的优先级高于 = 的优先级
+= 具有右结合性（执行的方向是从右往左，先执行 = 右边的表达式，然后把结果赋值给 = 左边的表达式，从这里可以得出 = 属于二元操作符），多个 = 的执行过程，可以类比成"递归"的过程
+```
+
+
+
+
+
 #### 。。。随时补充
+
+### 第 8 题：有以下 3 个判断数组的方法，请分别介绍它们之间的区别和优劣
+
+#### Object.prototype.toString.call()
+
+`Object.prototype.toString.call()` 常用于判断浏览器内置对象时。
+
+```javascript
+Object.prototype.toString.call('An') // "[object String]"
+Object.prototype.toString.call(1) // "[object Number]"
+Object.prototype.toString.call(Symbol(1)) // "[object Symbol]"
+Object.prototype.toString.call(null) // "[object Null]"
+Object.prototype.toString.call(undefined) // "[object Undefined]"
+Object.prototype.toString.call(function(){}) // "[object Function]"
+Object.prototype.toString.call({name: 'An'}) // "[object Object]"
+//每一个继承 Object 的对象都有 toString 方法，如果 toString 方法没有重写的话，会返回 [Object type]，其中 type 为对象的类型。但当除了 Object 类型的对象外，其他类型直接使用 toString 方法时，会直接返回都是内容的字符串，所以我们需要使用call或者apply方法来改变toString方法的执行上下文。
+```
+
+#### instanceof
+
+`instanceof`  的内部机制是通过判断对象的原型链中是不是能找到类型的 `prototype`。
+
+```javascript
+[]  instanceof Array; // true
+[]  instanceof Object; // true
+```
+
+#### Array.isArray()
+
+用来判断对象是否为数组
+
+```javascript
+if (!Array.isArray) {
+  Array.isArray = function(arg) {
+    return Object.prototype.toString.call(arg) === '[object Array]';
+  };
+}
+```
+
+#### typeof 
+
+typeof 只能检测 基本数据类型，包括boolean、undefined、string、number、symbol，而null ,Array、function、Object ,使用typeof出来都是Objec。无法检测具体是哪种引用类型。
+
+
+
+### 第 9 题：箭头函数与普通函数（function）的区别是什么？构造函数（function）可以使用 new 生成实例，那么箭头函数可以吗？为什么？
+
+- 普通使用时，箭头函数体现的更加简洁
+- 箭头函数的this在定义时的对象，而不是使用时的对象
+- 不能使用argument对象，该对象在函数体内不存。需要是 使用rest 参数代替
+- 不可以使用yield 命令，也不能作为Generator函数， `yield` 关键字通常不能在箭头函数中使用（除非是嵌套在允许使用的函数内）。因此，箭头函数不能用作函数生成器。
+- 不能使用new 命令，1.没有this，无法调用call，apply，没有prototype属性，而new命令执行时，需要将构造函数的prototype属性的赋值给实例的--proto-- 也没有new.target 和super
+
+```javascript
+function New(Ctor, ...rest) {
+  const o = Object.create(Ctor.prototype)
+  const ret = Ctor.apply(o, rest)
+  return ret || o
+}
+```
+
+### 第 10 题： `a.b.c.d` 和 `a['b']['c']['d']`，哪个性能更高？
+
+应该是 `a.b.c.d` 比 `a['b']['c']['d']` 性能高点，后者还要考虑 `[ ]` 中是变量的情况，再者，从两种形式的结构来看，显然编译器解析前者要比后者容易些，自然也就快一点
+
+#### AST抽象语法树（待补充）
+
+https://www.npmjs.com/package/recast
+
+![Ast解析](./recastAst解析.jpg)
+
+```javascript
+function add(a, b) {
+return a + b
+}
+
+
+1.用力拆开，它成了三块：
+
+一个id，就是它的名字，即add
+两个params，就是它的参数，即[a, b]
+一块body，也就是大括号内的一堆东西
+add没办法继续拆下去了，它是一个最基础Identifier（标志）对象，用来作为函数的唯一标志，就像人的姓名一样。
+{
+name: 'add'
+type: 'identifier'
+...
+}
+
+
+2.params继续拆下去，其实是两个Identifier组成的数组。之后也没办法拆下去了。
+
+[
+{
+name: 'a'
+type: 'identifier'
+...
+},
+{
+name: 'b'
+type: 'identifier'
+...
+}
+]
+
+3.接下来，我们继续拆开body
+我们发现，body其实是一个BlockStatement（块状域）对象，用来表示是{return a + b}
+打开Blockstatement，里面藏着一个ReturnStatement（Return域）对象，用来表示return a + b
+继续打开ReturnStatement,里面是一个BinaryExpression(二项式)对象，用来表示a + b
+继续打开BinaryExpression，它成了三部分，left，operator，right
+operator 即+
+left 里面装的，是Identifier对象 a
+right 里面装的，是Identifer对象 b
+
+就这样，我们把一个简单的add函数拆解完毕。抽象语法树(Abstract Syntax Tree)，的确是一种标准的树结构。
+
+run: 通过命令行读取js文件，并转化成ast以供处理。
+tnt： 通过assert()和check()，可以验证ast对象的类型。
+visit: 遍历ast树，获取有效的AST对象并进行更改。
+你想操作函数声明，就使用visitFunctionDelaration遍历，想操作赋值表达式，就使用visitExpressionStatement。 只要在 AST对象文档中定义的对象，在前面加visit，即可遍历。visitExportNamedDeclaration导出对象
+return false 每个遍历函数后必须加上return false
+或者选择以下写法，否则报错：
+
+#!/usr/bin/env node
+const recast = require('recast')
+
+recast.run(function(ast, printSource) {
+recast.visit(ast, {
+visitExpressionStatement: function(path) {
+const node = path.node
+printSource(node)
+this.traverse(path)
+}
+})
+});
+
+builder
+print
+
+```
+
+
+
+
+
+递归读取项目文件 -> 读文件 -> AST 操作 -> 写文件
+
+```javascript
+fs.readFile //递归读取项目文件 
+const code = data.toString();
+console.log(code);
+const ast = recast.parse(code); //解析为ast
+recast.visit(ast, {
+			visitExportNamedDeclaration: function(path) {//遍历导出
+              visitVariableDeclaration// 遍历var遍历
+              return false
+```
+
