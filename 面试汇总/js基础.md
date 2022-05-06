@@ -1132,6 +1132,46 @@ Javascript中所有对象基本都是先调用valueOf方法，如果不是数值
 
 
 
+```javascript
+function wait() {
+	return new Promise(resolve =>
+		setTimeout(resolve, 10 * 1000)
+	)
+}
+
+async function main() {
+	console.time();
+	const x = await wait(); // 每个都是都执行完才结,包括setTimeout（10*1000）的执行时间
+	const y = await wait(); // 执行顺序 x->y->z 同步执行，x 与 setTimeout 属于同步执行
+	const z = await wait();
+	console.timeEnd(); // default: 30099.47705078125ms
+	
+	console.time();
+	const x1 = wait(); // x1,y1,z1 同时异步执行， 包括setTimeout（10*1000）的执行时间
+	const y1 = wait(); // x1 与 setTimeout 属于同步执行
+	const z1 = wait();
+	await x1;
+	await y1;
+	await z1;
+	console.timeEnd(); // default: 10000.67822265625ms
+	// 这个的运行时间是10s多一点，这是因为：a，b，c的异步请求会按顺序发起。而这个过程是不需要互相依赖等待的。等到wait的时候，其实是比较那个异步耗时最多。就会等待最长。最长的耗时就是整体的耗时。
+  // 如果在业务中，两个异步没有依赖关系。应该是后面这种写法。
+
+
+
+
+	console.time();
+	const x2 = wait(); // x2,y2,z2 同步执行，但是不包括setTimeout（10*1000）的执行时间
+	const y2 = wait(); // x2 与 setTimeout 属于异步执行
+	const z2 = wait();
+	x2,y2,z2;
+	console.timeEnd(); // default: 0.065185546875ms
+}
+main();
+```
+
+
+
 
 
 ### 第 15 题：input 搜索如何防抖，如何处理中文输入 
@@ -1363,3 +1403,35 @@ https://juejin.cn/post/6844903654810468359
 
 
 ### 第 17 题：为什么 for 循环嵌套顺序会影响性能？
+
+可能：for循环中使用let，js引擎会为每一次循环初始化一个独立作用域和变量。 所以，第一种情况： i 初始化次数：100，j 初始化次数：100 * 1000，k 初始化次数：100 * 1000 * 10000 第二种情况： i 初始化次数：10000，j 初始化次数：10000 * 1000，k 初始化次数：10000 * 1000 * 100 通过比较可得 第二种情况，需要初始化的次数较多，所以耗时较长。
+
+所以相同循环次数，外层越大，越影响性能
+
+
+
+```javascript
+var t1 = new Date().getTime()
+for (let i = 0; i < 100; i++) {
+  for (let j = 0; j < 1000; j++) {
+    for (let k = 0; k < 10000; k++) {
+    }
+  }
+}
+var t2 = new Date().getTime()
+console.log('first time', t2 - t1)
+
+for (let i = 0; i < 10000; i++) {
+  for (let j = 0; j < 1000; j++) {
+    for (let k = 0; k < 100; k++) {
+
+    }
+  }
+}
+var t3 = new Date().getTime()
+console.log('two time', t3 - t2)
+```
+
+
+
+### 第 18 题：如何实现骨架屏，说说你的思路

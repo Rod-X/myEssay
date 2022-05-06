@@ -11,15 +11,21 @@
     ></script>
     <script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
     <script>
-      console.log(
-        1 + "1",
+      function wait() {
+        return new Promise((resolve) => setTimeout(resolve, 10 * 1000));
+      }
 
-        2 * "2",
-
-        [1, 2] + [2, 1],
-
-        "a" + +"b"
-      );
+      async function main() {
+        console.time();
+        const x = wait();
+        const y = wait();
+        const z = wait();
+        await x;
+        await y;
+        await z;
+        console.timeEnd();
+      }
+      main();
     </script>
   </head>
 
