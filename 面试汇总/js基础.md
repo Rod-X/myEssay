@@ -917,3 +917,240 @@ recast.visit(ast, {
               return false
 ```
 
+
+
+### 第 11 题：ES6 代码转成 ES5 代码的实现思路是什么
+
+一般是用babel
+
+- 将代码字符串解析成抽象语法树，即所谓的 AST
+- 对 AST 进行处理，在这个阶段可以对 ES6 代码进行相应转换，即转成 ES5 代码
+- 根据处理后的 AST 再生成代码字符串
+
+比如，可以使用 `@babel/parser` 的 `parse` 方法，将代码字符串解析成 AST；使用 `@babel/core` 的 `transformFromAstSync` 方法，对 AST 进行处理，将其转成 ES5 并生成相应的代码字符串；过程中，可能还需要使用 `@babel/traverse` 来获取依赖文件等。
+
+ES6转ES5分为以下两种情况 
+
+**1.语法转换** ES6语法通过babel等工具为ES5语法，**本质是将ES6语法转AST（抽象语法数——对编程语言编写的程序的一种描述）再将AST转为ES5语法代码**；例如：let,const转换为var，箭头函数转换为function函数声明等 
+
+**2.API转换** 采用[babel-polyfill](https://www.npmjs.com/package/@babel/polyfill)等工具对ES5中不存在的API（包括Set等ES6中新的数据结构）做修复，例如：`Array.prototype.includes` `Set` `Map`等在ES5中不存在，需要用相应的ES5代码实现这些API
+
+
+
+### 第 12 题： 为什么普通 `for` 循环的性能远远高于 `forEach` 的性能，请解释其中的原因。
+
+在10万这个级别下， `forEach` 的性能是 `for`的十倍
+
+在100万这个量级下， `forEach` 的性能是和`for`的一致
+
+在1000万级以上的量级上 ， `forEach` 的性能远远低于`for`的性能
+
+
+
+### 第 13 题：数组里面有10万个数据，取第一个元素和第10万个元素的时间相差多少
+
+Chrome 浏览器JS引擎 V8中，
+
+数组有两种存储模式，一种是类似C语言中的线性结构存储（索引值连续，且都是正整数的情况下），一种是采用Hash结构存储（索引值为负数，数组稀疏，间隔比较大）；
+
+结论：以上说明对这个问题都没啥影响，同一个数组，在索引取值的时候，取第一个和最后一个效率没什么差别
+
+
+
+### 第 14 题：输出以下代码运行结果
+
+这种情况建议使用 Map 字典
+
+```javascript
+// example 1
+var a={}, b='123', c=123;  
+a[b]='b';
+a[c]='c';  
+console.log(a[b]); // c
+
+---------------------
+// example 2
+var a={}, b=Symbol('123'), c=Symbol('123');  
+// b 是 Symbol 类型，不需要转换。
+a[b]='b';
+// c 是 Symbol 类型，不需要转换。任何一个 Symbol 类型的值都是不相等的，所以不会覆盖掉 b。
+a[c]='c';  
+console.log(a[b]); // b
+
+---------------------
+// example 3
+var a={}, b={key:'123'}, c={key:'456'};  
+a[b]='b';
+a[c]='c';  
+console.log(a[b]); //c
+```
+
+### 第 15 题：input 搜索如何防抖，如何处理中文输入 
+
+#### composition事件
+
+防抖就不说了，主要是这里提到的中文输入问题，其实看过elementui框架源码的童鞋都应该知道，elementui是通过compositionstart & compositionend做的中文输入处理：
+相关代码：
+<input
+ref="input"
+@compositionstart="handleComposition"
+@compositionupdate="handleComposition"
+@compositionend="handleComposition"
+\>
+这3个方法是原生的方法，这里简单介绍下，官方定义如下compositionstart 事件触发于一段文字的输入之前（类似于 keydown 事件，但是该事件仅在若干可见字符的输入之前，而这些可见字符的输入可能需要一连串的键盘操作、语音识别或者点击输入法的备选词）
+简单来说就是切换中文输入法时在打拼音时(此时input内还没有填入真正的内容)，会首先触发compositionstart，然后每打一个拼音字母，触发compositionupdate，最后将输入好的中文填入input中时触发compositionend。触发compositionstart时，文本框会填入 “虚拟文本”（待确认文本），同时触发input事件；在触发compositionend时，就是填入实际内容后（已确认文本）,所以这里如果不想触发input事件的话就得设置一个bool变量来控制。
+[![image](https://user-images.githubusercontent.com/34699694/58140376-8f5e9580-7c71-11e9-987e-5fe39fce5e90.png)](https://user-images.githubusercontent.com/34699694/58140376-8f5e9580-7c71-11e9-987e-5fe39fce5e90.png)
+根据上图可以看到
+
+输入到input框触发input事件
+失去焦点后内容有改变触发change事件
+识别到你开始使用中文输入法触发**compositionstart **事件未输入结束但还在输入中触发**compositionupdate **事件
+输入完成（也就是我们回车或者选择了对应的文字插入到输入框的时刻）触发compositionend事件。
+
+那么问题来了 使用这几个事件能做什么？
+因为input组件常常跟form表单一起出现，需要做表单验证
+[![image](https://user-images.githubusercontent.com/34699694/58140402-b1581800-7c71-11e9-97b9-9c696f3a0061.png)](https://user-images.githubusercontent.com/34699694/58140402-b1581800-7c71-11e9-97b9-9c696f3a0061.png)
+为了解决中文输入法输入内容时还没将中文插入到输入框就验证的问题
+
+我们希望中文输入完成以后才验证
+
+
+
+#### v-Numbet 和 elmentInput
+
+```javascript
+import { toFixedFun, FireEvent } from '@/utils/utils'
+export function toFixedFun(data, len) {
+  // 对数字末尾加0
+  function padNum(num) {
+    const dotPos = num.indexOf('.')
+    if (dotPos === -1) {
+      // 整数的情况
+      num += '.'
+      for (let i = 0; i < len; i++) {
+        num += '0'
+      }
+      return num
+    } else {
+      // 小数的情况
+      const need = len - (num.length - dotPos - 1)
+      for (let j = 0; j < need; j++) {
+        num += '0'
+      }
+      return num
+    }
+  }
+  // debugger
+  const number = Number(data)
+  if (isNaN(number) || number >= Math.pow(10, 21)) {
+    return number.toString()
+  }
+  if (typeof len === 'undefined' || len === 0) {
+    return Math.round(number).toString()
+  }
+  let result = number.toString()
+  const numberArr = result.split('.')
+
+  if (numberArr.length < 2) {
+    // 整数的情况
+    return padNum(result)
+  }
+  const intNum = numberArr[0] // 整数部分
+  const deciNum = numberArr[1] // 小数部分
+  const lastNum = deciNum.substr(len, 1) // 最后一个数字
+
+  if (deciNum.length === len) {
+    // 需要截取的长度等于当前长度
+    return result
+  }
+  if (deciNum.length < len) {
+    // 需要截取的长度大于当前长度 1.3.toFixed(2)
+    return padNum(result)
+  }
+  // 需要截取的长度小于当前长度，需要判断最后一位数字
+  result = `${intNum}.${deciNum.substr(0, len)}`
+  if (parseInt(lastNum, 10) >= 5) {
+    // 最后一位数字大于5，要进位
+    const times = Math.pow(10, len) // 需要放大的倍数
+    let changedInt = Number(result.replace('.', '')) // 截取后转为整数
+    changedInt++ // 整数进位
+    changedInt /= times // 整数转为小数，注：有可能还是整数
+    result = padNum(`${changedInt}`)
+  }
+  return result
+}
+
+// JS手动触发DOM事件
+export function FireEvent(elem, eventName) {
+  if (typeof elem == 'object') {
+    eventName = eventName.replace(/^on/i, '')
+    if (document.all) {
+      //
+      eventName = 'on' + eventName
+      elem.fireEvent(eventName)
+    } else {
+      const evt = document.createEvent('HTMLEvents')
+      evt.initEvent(eventName, true, true)
+      elem.dispatchEvent(evt)
+    }
+  }
+}
+
+export default {
+  inserted: function (el, binding) {
+    el.addEventListener('keypress', function (e) {
+      e = e || window.event
+      const charcode = typeof e.charCode == 'number' ? e.charCode : e.keyCode
+      const re = /\d/
+      if (charcode == 46) {
+        //@ts-ignore
+        if (e.target.value.includes('.')) {
+          e.preventDefault()
+        }
+        return
+      } else if (
+        !re.test(String.fromCharCode(charcode)) &&
+        charcode > 9 &&
+        !e.ctrlKey
+      ) {
+        if (e.preventDefault) {
+          e.preventDefault()
+        } else {
+          e.returnValue = false
+        }
+      }
+    })
+    if (el.getElementsByTagName('input')) {
+      el.getElementsByTagName('input')[0].addEventListener('blur', (e) => {
+        const regEx = /^[1-9]\d*\.\d*|0\.\d*[1-9]\d*|0?\.0+|0$/
+        const regEx2 = /^[1-9]\d*$/
+        if (!regEx.test(e.target.value) && !regEx2.test(e.target.value)) {
+          el.getElementsByTagName('input')[0].value = null
+          return
+        }
+        if (e.target.value.includes('.')) {
+          // console.log(binding.value)
+          const index = e.target.value.lastIndexOf('.')
+          const str = e.target.value.substring(index + 1, e.target.value.length)
+          if (str.length > binding.value) {
+            // el.getElementsByTagName('input')[0].value = Number(
+            //   e.target.value
+            // ).toFixed(binding.value)
+            const data = Number(e.target.value)
+            const element = el.getElementsByTagName('input')[0]
+            element.value = toFixedFun(data, binding.value)
+            // input
+            FireEvent(element, 'input')
+          }
+        }
+      })
+    }
+  },
+}
+
+```
+
+### 第 14 题：var、let 和 const 区别的实现原理是什么
+
+
+
