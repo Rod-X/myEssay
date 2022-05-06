@@ -607,3 +607,97 @@ Sub.__proto__ === Function.prototype;
 
 ```
 
+### 第 5 题：介绍模块化发展历程
+
+#### IIFE
+
+使用自执行函数来编写模块化，特点：在一个单独的函数作用域中执行代码，避免遍历冲突。
+
+```javascript
+(function(){
+  return {
+    data :[]
+  }
+})()
+```
+
+#### AMD
+
+使用requirejs来编写模块化，特点是：依赖必须提前声明
+
+```javascript
+define('./index.js',function(code){
+  // code 就是index.js返回的内容
+})
+```
+
+#### CMD
+
+使用seaJS来编写模块化，特点：支持动态引入依赖文件
+
+```javascript
+defind(function(require,export,module){
+  var indexCode = require('index.js')
+})
+
+```
+
+#### CommonJS
+
+nodejs中自带的模块化
+
+```javascript
+var fs  =  require('fs')
+```
+
+#### UMD
+
+兼容AMD，Commonjs模块化语法
+
+#### require.ensure(Webpack)
+
+webpack2.x版本中的代码分割
+
+#### ES Modules
+
+ES6中移入模块化的方法
+
+```javascript
+import a from 'a'
+```
+
+#### 思维导图
+
+https://www.processon.com/view/link/5c8409bbe4b02b2ce492286a#map
+
+
+
+### 第 6 题：全局作用域中，用 const 和 let 声明的变量不在 window 上，那到底在哪里？如何去获取？
+
+let 和const相当于自执行函数，只再自己的函数域中
+
+当直接在页面上定义变量时，var定义的在global上，let const在script上
+
+当在函数级中，var，let const也是在函数上local
+
+当在块级中，var 在相应的函数作用域上，let，const在Block中
+
+![作用域图片](./作用域图片.jpg)
+
+### 第 7 题：下面的代码打印什么内容，为什么？
+
+#### IIFE函数特性
+
+```javascript
+var b = 10;
+(function b() {
+   // 内部作用域，会先去查找是有已有变量b的声明，有就直接赋值20，确实有了呀。发现了具名函数 function b(){}，拿此b做赋值；
+   // IIFE的函数无法进行赋值（内部机制，类似const定义的常量），所以无效。
+  // （这里说的“内部机制”，想搞清楚，需要去查阅一些资料，弄明白IIFE在JS引擎的工作方式，堆栈存储IIFE的方式等）
+    b = 20;
+    console.log(b); // [Function b]//当存在var时，打印出20
+    console.log(window.b); // 10，不是20
+})();
+```
+
+#### 。。。随时补充

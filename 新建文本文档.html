@@ -11,51 +11,16 @@
     ></script>
     <script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
     <script>
-      window.onload = function () {
-        var Ryu = {
-          attack: function () {
-            console.log("攻击");
-          },
-          defence: function () {
-            console.log("防御");
-          },
-          jump: function () {
-            console.log("跳跃");
-          },
-          crouch: function () {
-            console.log("蹲下");
-          },
-        };
-        //创建命令
-        var makeCommand = function (receiver, state) {
-          return function () {
-            receiver[state]();
-          };
-        };
-        // 键盘按钮事件
-        var commands = {
-          119: "jump", //W
-          115: "crouch", //S
-          97: "defence", //A
-          100: "attack", //D
-        };
-        var commandStack = []; // 存储键盘按钮事件命令的队列栈
-        document.onkeypress = function (ev) {
-          var keyCode = ev.keyCode;
-          command = makeCommand(Ryu, commands[keyCode]);
-          if (command) {
-            command(); // 执行命令
-            commandStack.push(command); // 将执行过的任务放进队列中
-          }
-        };
-        document.getElementById("replay").onclick = function () {
-          // 点击播放录像
-          var command;
-          while ((command = commandStack.shift())) {
-            command();
-          }
-        };
-      };
+var obj = {
+    '2': 3,
+    '3': 4,
+    'length': 2,
+    'splice': Array.prototype.splice,
+    'push': Array.prototype.push
+}
+obj.push(1)
+obj.push(2)
+console.log(obj)
     </script>
   </head>
 
