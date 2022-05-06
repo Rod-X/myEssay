@@ -985,6 +985,155 @@ a[c]='c';
 console.log(a[b]); //c
 ```
 
+
+
+```javascript
+      function changeObjProperty(o) {
+        o.siteUrl = "http://www.baidu.com";
+        o = new Object();
+        o.siteUrl = "http://www.google.com";
+      }
+      let webSite = new Object();
+      changeObjProperty(webSite);
+      console.log(webSite.siteUrl);// http://www.baidu.com
+```
+
+
+
+```javascript
+function Foo() {
+Foo.a = function() {
+console.log(1)
+}
+this.a = function() {
+console.log(2)
+}
+}
+Foo.prototype.a = function() {
+console.log(3)
+}
+Foo.a = function() {
+console.log(4)
+}
+Foo.a();
+let obj = new Foo();
+obj.a();
+Foo.a();
+
+function Foo() {
+    Foo.a = function() {
+        console.log(1)
+    }
+    this.a = function() {
+        console.log(2)
+    }
+}
+// 以上只是 Foo 的构建方法，没有产生实例，此刻也没有执行
+
+Foo.prototype.a = function() {
+    console.log(3)
+}
+// 现在在 Foo 上挂载了原型方法 a ，方法输出值为 3
+
+Foo.a = function() {
+    console.log(4)
+}
+// 现在在 Foo 上挂载了直接方法 a ，输出值为 4
+
+Foo.a();
+// 立刻执行了 Foo 上的 a 方法，也就是刚刚定义的，所以
+// # 输出 4
+
+let obj = new Foo();
+/* 这里调用了 Foo 的构建方法。Foo 的构建方法主要做了两件事：
+1. 将全局的 Foo 上的直接方法 a 替换为一个输出 1 的方法。
+2. 在新对象上挂载直接方法 a ，输出值为 2。
+*/
+
+obj.a();
+// 因为有直接方法 a ，不需要去访问原型链，所以使用的是构建方法里所定义的 this.a，
+// # 输出 2
+
+Foo.a();
+// 构建方法里已经替换了全局 Foo 上的 a 方法，所以
+// # 输出 1
+```
+
+
+
+```javascript
+String('11') == new String('11'); // true
+String('11') === new String('11'); //false
+
+var str1 = String('11')
+var str2 = new String('11')
+str1 == str2 // true
+str1 === str2 // false
+typeof str1  // "string"
+typeof str2 // "object"
+
+1.==时做了隐式转换，调用了toString
+2.两者类型不一样，一个是string，一个是object
+```
+
+
+
+```javascript
+var name = 'Tom';
+(function() {
+if (typeof name == 'undefined') {
+  var name = 'Jack';
+  console.log('Goodbye ' + name);
+} else {
+  console.log('Hello ' + name);
+}
+})();// GoodbyeJack
+
+var name = 'Tom';
+(function() {
+if (typeof name == 'undefined') {
+  name = 'Jack';
+  console.log('Goodbye ' + name);
+} else {
+  console.log('Hello ' + name);
+}
+})(); // Hello Tom
+```
+
+
+
+```javascript
+1 + "1" //11
+
+2 * "2" //4
+
+[1, 2] + [2, 1] // 1,22,1
+
+"a" + + "b" // aNaN
+
+1 + "1"
+加性操作符：如果只有一个操作数是字符串，则将另一个操作数转换为字符串，然后再将两个字符串拼接起来
+
+所以值为：“11”
+
+2 * "2"
+乘性操作符：如果有一个操作数不是数值，则在后台调用 Number()将其转换为数值
+
+[1, 2] + [2, 1]
+Javascript中所有对象基本都是先调用valueOf方法，如果不是数值，再调用toString方法。
+
+所以两个数组对象的toString方法相加，值为："1,22,1"
+
+"a" + + "b"
+后边的“+”将作为一元操作符，如果操作数是字符串，将调用Number方法将该操作数转为数值，如果操作数无法转为数值，则为NaN。
+
+所以值为："aNaN"
+```
+
+
+
+
+
 ### 第 15 题：input 搜索如何防抖，如何处理中文输入 
 
 #### composition事件
@@ -1152,5 +1301,65 @@ export default {
 
 ### 第 14 题：var、let 和 const 区别的实现原理是什么
 
+- var：遇到有var的作用域，**在任何语句执行前都已经完成了声明和初始化**，也就是变量提升而且拿到undefined的原因由来
+- function： 声明、初始化、赋值一开始就全部完成，所以函数的变量提升优先级更高,一等公民
+- let：解析器进入一个块级作用域，发现let关键字，变量只是先完成**声明**，并没有到**初始化**那一步。此时如果在此作用域提前访问，则报错xx is not defined，这就是暂时性死区的由来。等到解析到有let那一行的时候，才会进入**初始化**阶段。如果let的那一行是赋值操作，则初始化和赋值同时进行
+- const、class都是同let一样的道理
+
+### 第 15 题：介绍下前端加密的常见场景和方法
+
+#### 加密详解
+
+https://wooyun.js.org/drops/Web%E5%89%8D%E7%AB%AF%E6%85%A2%E5%8A%A0%E5%AF%86.html
+
+首先，加密的目的，简而言之就是将明文转换为密文、甚至转换为其他的东西，用来隐藏明文内容本身，防止其他人直接获取到敏感明文信息、或者提高其他人获取到明文信息的难度。<br />通常我们提到加密会想到密码加密、HTTPS 等关键词，这里从场景和方法分别提一些我的个人见解。
+
+<a name="867e6c89"></a>
+
+#### 场景-密码传输
+
+前端密码传输过程中如果不加密，在日志中就可以拿到用户的明文密码，对用户安全不太负责。<br />这种加密其实相对比较简单，可以使用 PlanA-前端加密、后端解密后计算密码字符串的MD5/MD6存入数据库；也可以 PlanB-直接前端使用一种稳定算法加密成唯一值、后端直接将加密结果进行MD5/MD6，全程密码明文不出现在程序中。
+
+**PlanA**<br />使用 Base64 / Unicode+1 等方式加密成非明文，后端解开之后再存它的 MD5/MD6 。
+
+**PlanB**<br />直接使用 MD5/MD6 之类的方式取 Hash ，让后端存 Hash 的 Hash 。
+
+<a name="4687d461"></a>
+
+#### 场景-数据包加密
+
+应该大家有遇到过：打开一个正经网站，网站底下蹦出个不正经广告——比如X通的流量浮层，X信的插入式广告……（我没有针对谁）<br />但是这几年，我们会发现这种广告逐渐变少了，其原因就是大家都开始采用 HTTPS 了。<br />被人插入这种广告的方法其实很好理解：你的网页数据包被抓取->在数据包到达你手机之前被篡改->你得到了带网页广告的数据包->渲染到你手机屏幕。<br />而 HTTPS 进行了包加密，就解决了这个问题。严格来说我认为从手段上来看，它不算是一种前端加密场景；但是从解决问题的角度来看，这确实是前端需要知道的事情。
+
+**Plan**<br />全面采用 HTTPS
+
+<a name="H4e5B"></a>
+
+#### 场景-展示成果加密
+
+经常有人开发网页爬虫爬取大家辛辛苦苦一点一点发布的数据成果，有些会影响你的竞争力，有些会降低你的知名度，甚至有些出于恶意爬取你的公开数据后进行全量公开……比如有些食谱网站被爬掉所有食谱，站点被克隆；有些求职网站被爬掉所有职位，被拿去卖信息；甚至有些小说漫画网站赖以生存的内容也很容易被爬取。
+
+**Plan**<br />将文本内容进行展示层加密，利用字体的引用特点，把拿给爬虫的数据变成“乱码”。<br />举个栗子：正常来讲，当我们拥有一串数字“12345”并将其放在网站页面上的时候，其实网站页面上显示的并不是简单的数字，而是数字对应的字体的“12345”。这时我们打乱一下字体中图形和字码的对应关系，比如我们搞成这样：
+
+> 图形：1 2 3 4 5 字码：2 3 1 5 4
+
+这时，如果你想让用户看到“12345”，你在页面中渲染的数字就应该是“23154”。这种手段也可以算作一种加密。<br />具体的实现方法可以看一下《[Web 端反爬虫技术方案](https://juejin.im/post/5b6d579cf265da0f6e51a7e0)》。
+
+<a name="97ac239a"></a>
 
 
+
+### 第 16 题：前端反爬虫
+
+**方案1:** 对于你站点频率最高的词云，做一个汉字映射，也就是自定义字体文件，步骤跟数字一样。先将常用的汉字生成对应的 ttf 文件；根据下面提供的链接，将 ttf 文件转换为 svg 文件，然后在下面的“字体映射”链接点进去的网站上面选择前面生成的 svg 文件，将svg文件里面的每个汉字做个映射，也就是将汉字专为 unicode 码（注意这里的 unicode 码不要去在线直接生成，因为直接生成的东西也就是有规律的。我给的做法是先用网站生成，然后将得到的结果做个简单的变化，比如将“e342”转换为 “e231”）；然后接口返回的数据按照我们的这个字体文件的规则反过去映射出来。
+
+**方案2:** 将网站的重要字体，将 html 部分生成图片，这样子爬虫要识别到需要的内容成本就很高了，需要用到 OCR。效率也很低。所以可以拦截掉一部分的爬虫
+
+**方案3:** 看到携程的技术分享“反爬的最高境界就是 Canvas 的指纹，原理是不同的机器不同的硬件对于 Canvas 画出的图总是存在像素级别的误差，因此我们判断当对于访问来说大量的 canvas 的指纹一致的话，则认为是爬虫，则可以封掉它”
+
+
+
+https://juejin.cn/post/6844903654810468359
+
+
+
+### 第 17 题：为什么 for 循环嵌套顺序会影响性能？
