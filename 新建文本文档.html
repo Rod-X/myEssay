@@ -11,21 +11,58 @@
     ></script>
     <script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
     <script>
-      function wait() {
-        return new Promise((resolve) => setTimeout(resolve, 10 * 1000));
+      var p1 = new Promise(function (resolve, reject) {
+        setTimeout(function () {
+          resolve(1);
+        }, 0);
+      });
+      var p2 = new Promise(function (resolve, reject) {
+        setTimeout(function () {
+          resolve(2);
+        }, 200);
+      });
+      var p3 = new Promise(function (resolve, reject) {
+        setTimeout(function () {
+          try {
+            console.log(XX.BBB);
+          } catch (exp) {
+            resolve("error");
+          }
+        }, 100);
+      });
+      function promiseAll(promiseList) {
+        return new Promise(function (resolve, reject) {
+          if (!Array.isArray(promiseList)) {
+            return reject(new TypeError("argument must be an Array"));
+          }
+          let len = promiseList.length;
+          let restArr = new Array(len);
+          let resolveCount = 0;
+          for (let i = 0; i < len; i++) {
+            promiseList[i]
+              .then((v) => {
+                restArr[i] = v;
+                resolveCount++;
+                if (resolveCount === len) {
+                  resolve(restArr);
+                }
+              })
+              .catch((e) => {
+                return reject(e);
+              });
+          }
+        });
       }
-
-      async function main() {
-        console.time();
-        const x = wait();
-        const y = wait();
-        const z = wait();
-        await x;
-        await y;
-        await z;
-        console.timeEnd();
-      }
-      main();
+      Promise.all = promiseAll;
+      Promise.all([p1, p2, p3])
+        .then(function (results) {
+          console.log("success");
+          console.log(results);
+        })
+        .catch(function (r) {
+          console.log("err");
+          console.log(r);
+        });
     </script>
   </head>
 
