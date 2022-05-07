@@ -30,39 +30,18 @@
           }
         }, 100);
       });
-      function promiseAll(promiseList) {
-        return new Promise(function (resolve, reject) {
-          if (!Array.isArray(promiseList)) {
-            return reject(new TypeError("argument must be an Array"));
-          }
-          let len = promiseList.length;
-          let restArr = new Array(len);
-          let resolveCount = 0;
-          for (let i = 0; i < len; i++) {
-            promiseList[i]
-              .then((v) => {
-                restArr[i] = v;
-                resolveCount++;
-                if (resolveCount === len) {
-                  resolve(restArr);
-                }
-              })
-              .catch((e) => {
-                return reject(e);
-              });
-          }
-        });
+      function* f1() {
+        console.log(1);
+        var a = yield p1;
+        console.log(2,a);
+        var b = yield p2;
+        console.log(3,b);
       }
-      Promise.all = promiseAll;
-      Promise.all([p1, p2, p3])
-        .then(function (results) {
-          console.log("success");
-          console.log(results);
-        })
-        .catch(function (r) {
-          console.log("err");
-          console.log(r);
-        });
+      let f = f1();
+      f.next();
+      // f.next();
+      // f.next();
+
     </script>
   </head>
 
