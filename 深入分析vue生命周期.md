@@ -748,6 +748,93 @@ function callUpdatedHooks (queue) {
 ```
 ### callHook(vm, 'activated')
 ### callHook(vm, 'deactivated')
+只有组件被 keep-alive 包裹时，这两个生命周期函数才会被调用，如果作为正常组件使用，是不会被调用的，以及在 2.1.0 版本之后，使用 exclude 排除之后，就算被包裹在 keep-alive 中，这两个钩子函数依然不会被调用！另外，在服务端渲染时，此钩子函数也不会被调用。
+```base
+<keep-alive :include="whiteList" :exclude="blackList" :max="amount">
+  <router-view></router-view>
+</keep-alive>
+include定义缓存白名单，keep-alive会缓存命中的组件；exclude定义缓存黑名单，被命中的组件将不会被缓存；max定义缓存组件上限，超出上限使用LRU的策略置换缓存数据。
+LRU是Least Recently Used的缩写，即最近最少使用，是一种常用的页面置换算法，选择最近最久未使用的页面予以淘汰。
+```
+
+```javascript
+// src/core/components/keep-alive.js
+export default {
+  name: 'keep-alive',
+  abstract: true, // 判断当前组件虚拟dom是否渲染成真是dom的关键
+  // 当 vnode.componentInstance和keepAlive同时为truly值时，不再进入$mount过程，那mounted之前的所有钩子函数（beforeCreate、created、mounted）都不再执行
+  props: {
+    include: patternTypes, // 缓存白名单
+    exclude: patternTypes, // 缓存黑名单
+    max: [String, Number] // 缓存的组件实例数量上限
+  },
+
+  created () {
+    this.cache = Object.create(null) // 缓存虚拟dom
+    this.keys = [] // 缓存的虚拟dom的健集合
+  },
+
+  destroyed () {
+    for (const key in this.cache) { // 删除所有的缓存
+      pruneCacheEntry(this.cache, key, this.keys)
+    }
+  },
+
+  mounted () {
+    // 实时监听黑白名单的变动
+    this.$watch('include', val => {
+      pruneCache(this, name => matches(val, name))
+    })
+    this.$watch('exclude', val => {
+      pruneCache(this, name => !matches(val, name))
+    })
+  },
+
+  render () {
+      var slot = this.$slots.default;
+      ar vnode = getFirstComponentChild(slot);
+      // ...
+      return vnode || (slot && slot[0])
+  }
+}
+```
+
+```javascript
+// src/core/instance/lifecycle.js
+export function activateChildComponent (vm: Component, direct?: boolean) {
+  if (direct) {
+    vm._directInactive = false
+    if (isInInactiveTree(vm)) {
+      return
+    }
+  } else if (vm._directInactive) {
+    return
+  }
+  if (vm._inactive || vm._inactive === null) {
+    vm._inactive = false
+    for (let i = 0; i < vm.$children.length; i++) {
+      activateChildComponent(vm.$children[i])
+    }
+    callHook(vm, 'activated')
+  }
+}
+ 
+export function deactivateChildComponent (vm: Component, direct?: boolean) {
+  if (direct) {
+    vm._directInactive = true
+    if (isInInactiveTree(vm)) {
+      return
+    }
+  }
+  if (!vm._inactive) {
+    vm._inactive = true
+    for (let i = 0; i < vm.$children.length; i++) {
+      deactivateChildComponent(vm.$children[i])
+    }
+    callHook(vm, 'deactivated')
+  }
+}
+```
 
 
 ### callHook(vm, 'beforeDestroy')
