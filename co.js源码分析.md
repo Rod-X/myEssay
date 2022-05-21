@@ -1,4 +1,4 @@
-
+async-await：generator+promise中自动执行next()-实现的异步化同步的语法糖
 
 ### 源码
 
@@ -274,9 +274,7 @@ function isObject(val) {
 ### 逻辑图
 
 
-
-![co自执行genarator逻辑图](./co自执行genarator逻辑图.png)
-
+![co自执行genarator逻辑图.png](https://p1-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/b8a5320d4b1d4823a579901f84735c19~tplv-k3u1fbpfcp-watermark.image?)
 ### 原理
 
 Generator 函数的暂停执行的效果，意味着可以把异步操作写在`yield`表达式里面，等到调用`next`方法时再往后执行。这实际上等同于不需要写回调函数了，因为异步操作的后续操作可以放在`yield`表达式下面，反正要等到调用`next`方法时再执行。所以，Generator 函数的一个重要实际意义就是用来处理异步操作，改写回调函数。
