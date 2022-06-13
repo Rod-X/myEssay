@@ -22,8 +22,8 @@ Node.js 文件系统（fs 模块）模块中的方法均有异步和同步版本
 
 ## 常见文件操作APi
 cb错误优先
-+ readFile()
-+ writeFile
-+ appendFile
-+ copyFile
-+ watchFile
++ readFile(path,string,{mode},cb(err))
++ writeFile(path,string,{mode},cb(err))
++ appendFile(path,string,{mode},cb(err))
++ copyFile(path,string,{mode},cb(err))
++ watchFile()
