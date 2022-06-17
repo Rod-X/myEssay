@@ -242,5 +242,13 @@ function myInstanceof(letf,right) {
         proto = proto.__proto__
     }
 }
-
+// call
+function myCall(ctx,...args) {
+    let fn = Symbol()
+    ctx[fn] = this
+    const result = ctx[fn](...args)
+    delete context[fn]
+    fn = null
+    return result
+}
 
