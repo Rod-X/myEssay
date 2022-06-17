@@ -244,11 +244,25 @@ function myInstanceof(letf,right) {
 }
 // call
 function myCall(ctx,...args) {
+    ctx  = ctx || window
     let fn = Symbol()
     ctx[fn] = this
     const result = ctx[fn](...args)
     delete context[fn]
-    fn = null
     return result
+}
+// apply
+Function.prototype.myApply = function(context) {
+  context = context || window
+  let fn = Symbol()
+  context[fn] = this
+  let result
+  if (arguments[1]) {
+    result = context[fn](...arguments[1])
+  } else {
+    result = context[fn]()
+  }
+  delete context[fn]
+  return result
 }
 
