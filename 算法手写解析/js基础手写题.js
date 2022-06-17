@@ -266,3 +266,15 @@ Function.prototype.myApply = function(context) {
   return result
 }
 
+// bind
+Function.prototype.myBind = function (ctx) {
+  ctx = ctx || window
+  const fn  = Simbol()
+  ctx[fn] = this
+  const args = [...arguments].slice(1)
+  return function (...args2) {
+    const result = ctx[fn](...args,...args2)
+    delete ctx[fn]
+    return result
+  }
+}
