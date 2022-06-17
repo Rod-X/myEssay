@@ -71,3 +71,32 @@ class Queue {
   handleClick('A');
   handleClick('C');
   handleClick('B');
+
+  事件循环
+  console.log('script start');
+
+setTimeout(function() {
+    console.log('setTimeout');
+}, 0);
+
+Promise.resolve().then(function() {
+    queueMicrotask(() => console.log('queueMicrotask'))
+    console.log('promise');
+});
+
+console.log('script end');
+// 遇到 console.log 执行并打印
+// 遇到 setTimeout，将回调加入宏任务队列
+// 遇到 Promise.resolve()，此时状态已经改变，因此将 then 回调加入微任务队列
+// 遇到 console.log 执行并打印
+// 此时同步任务全部执行完毕，分别打印了 'script start' 以及 'script end'，开始判断是否有微任务需要执行。
+
+// 微任务队列存在任务，开始执行 then 回调函数
+// 遇到 queueMicrotask，将回到加入微任务队列
+// 遇到 console.log 执行并打印
+// 检查发现微任务队列存在任务，执行 queueMicrotask 回调
+// 遇到 console.log 执行并打印
+//*** */ 此时发现微任务队列已经清空，判断是否需要进行 UI 渲染。
+
+// 执行宏任务，开始执行 setTimeout 回调
+// 遇到 console.log 执行并打印
