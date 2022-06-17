@@ -278,3 +278,5 @@ Function.prototype.myBind = function (ctx) {
     return result
   }
 }
+
+
