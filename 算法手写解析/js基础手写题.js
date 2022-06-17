@@ -37,4 +37,37 @@
  var instance = new SubType("Taec",18)
  console.dir(instance)
 
- 
+// promise Queue
+class Queue {
+    promise = Promise.resolve();
+  
+    excute(promise) {
+      this.promise = this.promise.then(() => promise);
+      return this.promise;
+    }
+    
+  }
+  
+  const queue = new Queue();
+  
+  const delay = (params) => {
+    const time = Math.floor(Math.random() * 5);
+    return new Promise((resolve) => {
+      console.log(111,params);
+      setTimeout(() => {
+        resolve(params);
+      }, time * 500);
+    });
+  };
+  
+  const handleClick = async (name) => {
+    const res = await queue.excute(delay(name));
+    console.log(res);
+  };
+  
+  handleClick('A');
+  handleClick('B');
+  handleClick('C');
+  handleClick('A');
+  handleClick('C');
+  handleClick('B');
