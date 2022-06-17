@@ -227,3 +227,20 @@ class Events {
       this.addEvent(key, fn, true, ...args)
     }
   }
+
+//   instanceof
+function myInstanceof(letf,right) {
+    let proto = letf.__proto__
+    let prototype = right.prototype
+    while (true) {
+        if (proto === null) {
+            return false
+        }
+        if (proto === prototype) {
+            return true
+        }
+        proto = proto.__proto__
+    }
+}
+
+
