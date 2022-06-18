@@ -279,4 +279,11 @@ Function.prototype.myBind = function (ctx) {
   }
 }
 
-
+// 使用正则提取url上面的参数
+function getParmas(url) {
+  const params = {}
+  url.replace(/[\?&#](\w+)=([^\?&#]+)/g,(...args)=>{
+      params[args[1]] = args[2]
+  })
+  return params
+}
