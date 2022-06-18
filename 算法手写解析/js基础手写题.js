@@ -287,3 +287,9 @@ function getParmas(url) {
   })
   return params
 }
+
+// "v"+[0]+"_"+(null*false-0)+"v" 的结果
+'v0_0v'
+// "v"+([0].toString())+"_"+(Number(null)*Number(false)-0)+"v"
+
+
