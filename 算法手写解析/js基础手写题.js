@@ -301,3 +301,7 @@ function getParmas(url) {
 // 用const定义基本数据类型不可被修改；
 // 用const定义引用数据类型（引用数据类型会在内存额外开辟一块空间存放），不可以修改“内存地址”，但是可以修改里边的属性
 
+// script标签中 defer和 async属性的区别。
+// 区别如下。
+// （1） defer属性规定是否延迟执行脚本，直到页面加载为止， async属性规定脚本一旦可用，就异步执行。
+// （2） defer并行加载 JavaScript文件，会按照页面上 script标签的顺序执行， async并行加载 JavaScript文件，下载完成立即执行，不会按照页面上 script标签的顺序执行。
