@@ -292,4 +292,8 @@ function getParmas(url) {
 'v0_0v'
 // "v"+([0].toString())+"_"+(Number(null)*Number(false)-0)+"v"
 
+// [1, 2, 3] + [4, 5, 6] 的结果
+'1,2,34,5,6'
+// = [1,2,3].toString() + [4,5,6].toString()
+// = “1,2,3” + “4,5,6”
 
