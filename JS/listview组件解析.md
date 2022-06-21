@@ -160,3 +160,35 @@ default: { items: 'result.items', total: 'result.total_count' }
 如果 contentDataMap 设置为 null ，则不进行映射处理，直接返回接口响应数据。
 
 错误处理
+validateResponse
+type: Function
+default: null
+验证接口响应是否成功。若接口响应格式字段有差异，可修改该配置。
+
+resolveResponseErrorMessage
+type: (res) => string
+default: null
+在 validateResponse 返回 false 标识请求失败后，会调用 resolveResponseErrorMessage 解析错误提示信息。
+
+【默认表格样式】错误信息会出现在表格内容区域内
+【自定义 slot 】数据挂载在 slot-scope 的 content-message 属性上。
+
+数据请求 - 高级配置
+requestHandler
+type: (requestData) => Promise<data> | data
+default: null
+自定义请求方法，需要返回 Promise ，该方法优先级最高。若设置了 validateResponse 方法，亦会以返回的内容进行验证流程。
+
+#transformRequestData
+type: (requestData) => requestData
+default: null
+该方法可对接口发起请求参数在发送前作最后的更改，方法最终 return 的数据会作为提交参数。参数 requestData 包含搜索栏的所有数据，如果有开启分页还会包含 page_index 和 page_size 。
+
+如果该方法显式的返回 false 则会阻止提交，可用于发起请求前进行参数验证等。
+
+#transformResponseData
+type: (responseData) => responseData
+default: null
+对原始响应数据的加工方法，接收原始响应数据，方法处理后 return 的返回值会交由给 contentDataMap 进行映射。
+
+一般用于接口响应的数据无法简单一次映射到需要的数据（如需要根据其他条件重组、聚合）时，亦可使用该配置项对数据进行加工再返回。
