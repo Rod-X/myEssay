@@ -192,3 +192,15 @@ default: null
 对原始响应数据的加工方法，接收原始响应数据，方法处理后 return 的返回值会交由给 contentDataMap 进行映射。
 
 一般用于接口响应的数据无法简单一次映射到需要的数据（如需要根据其他条件重组、聚合）时，亦可使用该配置项对数据进行加工再返回。
+
+
+## Prop: filterButtons
+type: Array
+default: []
+用于配置搜索栏左侧的操作按钮，一个数组项对应一个操作按钮。支持传入 Object 和 JSX 
+type
+type: String
+default: 'default'
+按钮样式，可选，支持类型： primary , success , info , warning , danger , text 。
+
+filterButton主要是按钮，提前定义好类型，利用el-button组件和根据类型不同，返回含不同参数的组件
