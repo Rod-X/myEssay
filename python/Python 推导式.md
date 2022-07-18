@@ -48,3 +48,21 @@ listdemo = ['Google','Runoob', 'Taobao']
 <class 'dict'>
 
 ```
+
+## 集合推导式
+```python
+
+{ expression for item in Sequence }
+# 或
+{ expression for item in Sequence if conditional }
+
+>>> setnew = {i**2 for i in (1,2,3)}
+>>> setnew
+{1, 4, 9}
+
+>>> a = {x for x in 'abracadabra' if x not in 'abc'}
+>>> a
+{'d', 'r'}
+>>> type(a)
+<class 'set'>
+```
